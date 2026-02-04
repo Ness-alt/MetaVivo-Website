@@ -18,7 +18,9 @@ Build a fully functional skeleton site driven by Sanity CMS. All singleton pages
 | Framework | Astro (SSG) |
 | Styling | Tailwind CSS v4 |
 | UI Components | Starwind UI (primitives + pro blocks) |
-| CMS | Sanity (fresh project) |
+| CMS | Sanity (fresh project) + TypeGen for TS types |
+| Portable Text | `astro-portabletext` + custom `PortableText.astro` |
+| Images | `@sanity/image-url` + custom `SanityImage.astro` |
 | Design | Figma wireframe |
 | Theme tokens | Starwind Theme Designer → `src/styles/starwind.css` |
 
@@ -39,6 +41,8 @@ metavivo-website/
 │   ├── components/
 │   │   ├── PageBuilder.astro     # Switchboard — maps module _type → component
 │   │   ├── SchemaOrg.astro       # Generates JSON-LD structured data from props
+│   │   ├── PortableText.astro    # Renders Sanity Portable Text → Starwind-styled HTML
+│   │   ├── SanityImage.astro     # Handles image URL generation, sizing, lazy load (prevents CLS)
 │   │   └── blocks/               # All reusable page modules
 │   │       ├── Hero.astro
 │   │       ├── TextBlock.astro
@@ -66,6 +70,29 @@ metavivo-website/
 ---
 
 ## Sanity Schema
+
+### Site Settings (Global Singleton)
+
+A single `siteSettings` document controls everything shared across the site. The marketing team can update nav links, footer columns, and global defaults without code changes.
+
+```
+{
+  _type: 'siteSettings',
+  siteName: string,                 // e.g. "MetaVivo"
+  defaultOgImage: image,            // fallback OG image for pages without one
+  favicon: image,
+  nav: {
+    links: [{ label, url }],        // main nav links (About, Science, News, etc.)
+    ctaButton: { label, url }       // primary CTA in the nav bar
+  },
+  footer: {
+    tagline: string,                // e.g. "MetaVivo pioneers immune therapies..."
+    columns: [                      // each column is a label + list of links
+      { heading, links: [{ label, url }] }
+    ]
+  }
+}
+```
 
 ### Singleton Pages
 
@@ -110,7 +137,7 @@ Used by `hero`, `ctaBanner`, and any future module that needs a link.
 
 | Type | Fields | Has own page? |
 |---|---|---|
-| `pressItem` | `publicationLogo`, `headline`, `url` | No — links externally |
+| `pressItem` | `publicationLogo`, `headline`, `url`, `summary` (optional) | No — links externally |
 | `pressRelease` | `title`, `slug` (auto from title), `body` (portable text), `publishedAt`, `ogImage` | Yes — `/news/[slug]` |
 
 ### Listing Pages (`/press`, `/news`)
@@ -153,7 +180,7 @@ All blocks are props-driven, stateless, and built on Starwind primitives + pro b
 | `twoColumn` | Two-column layout block — left: text stack, right: image grid + bullet list |
 | `cardGrid` | Card grid block — 3-col row of cards (title + body). Arrow icon on first card per wireframe |
 | `contentWithImage` | Content + image block — label, heading, subtitle, full-width image |
-| `pressFeed` | Horizontal card list — headline + body + publication logo (right-aligned) |
+| `pressFeed` | Horizontal card list — headline + optional summary + publication logo (right-aligned) |
 | `pressReleaseFeed` | Same card pattern as pressFeed, links to `/news/[slug]` |
 | `ctaBanner` | CTA block — heading, primary + secondary buttons, image |
 
@@ -162,11 +189,16 @@ All blocks are props-driven, stateless, and built on Starwind primitives + pro b
 - **Button** — two variants: `primary` (filled black) and `secondary` (outlined). Props: `label`, `url`, `openInNewTab`.
 - **Image** — wireframe X-pattern placeholders become standard `<img>` tags fed by Sanity image assets. Swapped to real images as content is added.
 
+### Shared Utilities
+
+- **PortableText.astro** — renders Sanity Portable Text JSON into HTML. Maps standard blocks (h2, h3, p, strong, lists) to Starwind-styled primitives. Used by `pressRelease` body and any future rich-text field.
+- **SanityImage.astro** — wraps `@sanity/image-url`. Takes a Sanity image asset as input, calculates width/height from metadata, outputs a properly sized `<img>` with `loading="lazy"`. Prevents CLS across all components.
+
 ### Global Layout (Nav + Footer)
 
-`Layout.astro` wraps every page. Contains:
-- **Nav:** Logo (with icon), links (About, Science, News), primary CTA button
-- **Footer:** Logo, tagline, link columns (About/Science/Careers/News, LinkedIn/Contact, Privacy/Terms/Regulatory), copyright
+`Layout.astro` wraps every page. Nav and Footer content is fetched from the `siteSettings` singleton — no hardcoded links.
+- **Nav:** Logo (with icon), links from `siteSettings.nav.links`, CTA button from `siteSettings.nav.ctaButton`
+- **Footer:** Logo, tagline from `siteSettings.footer.tagline`, link columns from `siteSettings.footer.columns`, copyright (year auto-generated)
 
 ---
 
@@ -213,7 +245,16 @@ The component is reusable — pass different props for different content types i
 
 | Phase | What happens |
 |---|---|
-| 1 — Skeleton | Build structure. Home landing page is live. All other singletons exist as unpublished drafts in Sanity. |
-| 2 — Content | Populate Sanity with real content. Publish pages one by one. |
+| 1 — Skeleton | Build structure. Home landing page is live. All other singletons exist as unpublished drafts in Sanity. In-Studio preview via Sanity Presentation Tool. |
+| 2 — Content | Populate Sanity with real content. Publish pages one by one. Add standalone preview route (SSR) for sharing preview links externally. Upgrade Button `url` to a Link object (reference to Sanity doc OR external URL) for internal link integrity. |
 | 3 — Brand Skin | Designer delivers Figma brand files. Re-export Starwind theme → overwrite `starwind.css`. 90% of site instantly reskins. |
 | 4 — Polish | Screenshot Figma designs into Cursor. Tweak Tailwind classes for pixel-perfect layout. No logic changes. |
+
+---
+
+## Deferred to Phase 2
+
+These were considered for the skeleton but are not blockers. Revisit when content population begins.
+
+- **Link references** — Button `url` is a plain string for skeleton. Phase 2 upgrades to a Link object: choose between a `reference` (to another Sanity document, survives slug changes) or an `externalUrl` string. Prevents broken internal links as content evolves.
+- **Standalone preview route** — Sanity's Presentation Tool covers in-Studio preview for skeleton phase. Phase 2 adds an Astro SSR preview API route so draft pages can be shared via a link outside of Studio.
