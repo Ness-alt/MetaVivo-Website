@@ -19,5 +19,5 @@
     "cssVariables": true
   },
   "style": "default",
-  "rsc": true
+  "rsc": false
 }
