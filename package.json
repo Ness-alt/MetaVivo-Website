@@ -1,0 +1,21 @@
+{
+  "name": "metavivo-website",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "npx": "npx"
+  },
+  "dependencies": {
+    "@sanity/client": "^7.14.1",
+    "@sanity/image-url": "^2.0.3",
+    "astro": "^5.17.1",
+    "astro-portabletext": "^0.13.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}
