@@ -76,29 +76,70 @@ export default defineConfig({
 @import "./starwind.css";
 ```
 
-**Step 4:** Create `src/styles/starwind.css` — neutral wireframe tokens. Overwritten at Brand Injection phase:
+**Step 4:** Initialize Starwind with Pro support FIRST — this generates the base `starwind.css`. Must run before adding any pro blocks:
+```bash
+npx starwind@latest init --defaults --pro
+```
+This creates `src/styles/starwind.css` with default Starwind variables and wires it into your project. Accept all defaults. If it modifies `astro.config.mjs`, that's expected.
+
+**Step 5:** Overwrite `src/styles/starwind.css` with skeleton wireframe tokens. All Starwind components read these variables — this is the Token Bridge. Overwritten entirely at Brand Injection phase with Starwind Theme Designer export:
 ```css
 /* Starwind Theme Tokens — Skeleton (wireframe) */
-/* Replace entirely with Starwind Theme Designer export at Brand Injection phase */
-:root {
-  --color-primary: #000000;
-  --color-primary-foreground: #ffffff;
-  --color-secondary: #ffffff;
-  --color-secondary-foreground: #000000;
-  --color-background: #ffffff;
-  --color-foreground: #000000;
-  --color-muted: #f2f2f2;
-  --color-muted-foreground: #666666;
-  --color-border: #000000;
-  --radius: 5px;
+/* REPLACE THIS ENTIRE FILE with Starwind Theme Designer export at Brand Injection phase */
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-outline: var(--outline);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 4px);
+  --radius-xl: calc(var(--radius) + 8px);
+  --radius-2xl: calc(var(--radius) + 16px);
+  --radius-3xl: calc(var(--radius) + 24px);
+  --radius-full: 9999px;
+}
+
+@layer base {
+  :root {
+    /* Neutral wireframe palette — black/white/grays only */
+    --background: oklch(1 0 0);                          /* white */
+    --foreground: oklch(0.06 0.02 264);                  /* near black */
+    --card: oklch(1 0 0);                                /* white */
+    --card-foreground: oklch(0.06 0.02 264);             /* near black */
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.06 0.02 264);
+    --primary: oklch(0.06 0.02 264);                     /* black — filled buttons */
+    --primary-foreground: oklch(1 0 0);                  /* white */
+    --secondary: oklch(0.95 0.003 264);                  /* light gray — secondary bg */
+    --secondary-foreground: oklch(0.06 0.02 264);       /* black */
+    --muted: oklch(0.95 0.003 264);                      /* #f2f2f2 equivalent */
+    --muted-foreground: oklch(0.4 0.02 264);             /* mid gray */
+    --accent: oklch(0.9 0.003 264);                      /* slightly darker gray */
+    --accent-foreground: oklch(0.06 0.02 264);
+    --border: oklch(0.06 0.02 264);                      /* black borders (wireframe) */
+    --input: oklch(0.85 0.003 264);                      /* light gray inputs */
+    --outline: oklch(0.06 0.02 264);
+    --radius: 5px;                                       /* matches wireframe border-radius */
+  }
 }
 ```
-
-**Step 5:** Initialize Starwind:
-```bash
-npx starwind init
-```
-Accept all defaults. If it modifies `astro.config.mjs`, that's expected.
 
 **Step 6:** Verify:
 ```bash
@@ -776,15 +817,30 @@ git commit -m "feat: add SanityImage and PortableText shared components"
 
 ---
 
-## Task 11: Layout.astro
+## Task 11: Layout.astro (navbar-02 + footer-03)
+
+Nav and Footer use Starwind Pro blocks so they consume theme tokens correctly at reskin time.
 
 **Files:**
 - Create: `src/layouts/Layout.astro`
+
+**Step 1:** Install the nav and footer pro blocks:
+```bash
+npx starwind@latest add @starwind-pro/navbar-02 @starwind-pro/footer-03 button sheet separator dropdown collapsible --yes
+```
+This creates component files in your project (check where `starwind add` places them — typically `src/components/` or a starwind folder). Locate the generated `Navbar02.astro` and `Footer03.astro` files.
+
+**Step 2:** Read the generated navbar and footer components. Understand their prop interfaces — they will have hardcoded demo data that you'll replace with `siteSettings` data from Sanity.
+
+**Step 3:** Create `src/layouts/Layout.astro`. Import the generated Navbar02 and Footer03. Fetch `siteSettings` from Sanity and pass the data as props (or inline into the component if it uses slots/hardcoded arrays — you'll need to adapt based on what `starwind add` generated):
 
 ```astro
 ---
 import '../styles/global.css'
 import { sanityClient } from '../lib/sanity'
+// Import paths will depend on where starwind add placed these files
+import Navbar from '../components/Navbar02.astro'
+import Footer from '../components/Footer03.astro'
 
 interface Props {
   title?: string
@@ -824,60 +880,37 @@ const year = new Date().getFullYear()
   {seoDescription && <meta name="description" content={seoDescription} />}
   {settings?.favicon?.asset?.url && <link rel="icon" href={settings.favicon.asset.url} />}
 </head>
-<body class="bg-white text-black font-sans min-h-screen flex flex-col">
+<body class="bg-background text-foreground font-sans min-h-screen flex flex-col">
 
-  <!-- Nav -->
-  <nav class="flex items-center justify-between px-10 h-16 bg-white border-b border-gray-200 shrink-0">
-    <a href="/" class="text-xl font-semibold">{settings?.siteName || 'MetaVivo'}</a>
-    <div class="flex items-center gap-8">
-      {settings?.nav?.links?.map((link: any) => (
-        <a href={link.url} class="text-sm hover:underline">{link.label}</a>
-      ))}
-      {settings?.nav?.ctaButton && (
-        <a href={settings.nav.ctaButton.url} class="bg-black text-white text-sm px-5 py-2 rounded-[5px]">
-          {settings.nav.ctaButton.label}
-        </a>
-      )}
-    </div>
-  </nav>
+  <!-- Nav: adapt Navbar02 props/slots to use settings.nav data -->
+  <Navbar
+    siteName={settings?.siteName || 'MetaVivo'}
+    links={settings?.nav?.links || []}
+    ctaButton={settings?.nav?.ctaButton}
+  />
 
-  <!-- Page Content -->
   <main class="flex-1">
     <slot />
   </main>
 
-  <!-- Footer -->
-  <footer class="bg-gray-50 px-10 pt-12 pb-8 border-t border-gray-200 shrink-0">
-    <div class="max-w-6xl mx-auto">
-      {settings?.footer?.tagline && (
-        <p class="text-lg font-semibold max-w-md mb-12">{settings.footer.tagline}</p>
-      )}
-      <div class="flex justify-between">
-        <div class="flex gap-24">
-          {settings?.footer?.columns?.map((col: any) => (
-            <div>
-              <h4 class="font-mono text-sm mb-3">{col.heading}</h4>
-              <ul class="space-y-1">
-                {col.links?.map((link: any) => (
-                  <li><a href={link.url} class="font-mono text-sm hover:underline">{link.label}</a></li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-      </div>
-      <p class="font-mono text-sm mt-12">© {year} METAVIVO</p>
-    </div>
-  </footer>
+  <!-- Footer: adapt Footer03 props/slots to use settings.footer data -->
+  <Footer
+    tagline={settings?.footer?.tagline}
+    columns={settings?.footer?.columns || []}
+    copyright={`© ${year} METAVIVO`}
+  />
 
 </body>
 </html>
 ```
 
-**Commit:**
+**Note:** The prop names above (`siteName`, `links`, `ctaButton`, `tagline`, `columns`, `copyright`) are illustrative. After installing the pro blocks in Step 1, read the generated component source to see the actual prop interface, then wire accordingly. The key principle: replace all hardcoded demo data in the Starwind components with data from `siteSettings`.
+
+**Verify + Commit:**
 ```bash
-git add src/layouts/Layout.astro
-git commit -m "feat: add Layout with CMS-driven nav and footer"
+npm run build
+git add src/layouts/Layout.astro src/components/Navbar02.astro src/components/Footer03.astro
+git commit -m "feat: add Layout with Starwind navbar-02 and footer-03, CMS-driven"
 ```
 
 ---
@@ -937,274 +970,200 @@ git commit -m "feat: add PageBuilder switchboard component"
 **Files:**
 - Create all 8 files in `src/components/blocks/`
 
-All components are stateless and props-driven. Use Starwind primitives where available — the Tailwind classes below match the wireframe layout and serve as the skeleton baseline.
+**CRITICAL:** All components MUST use Starwind pro blocks or Starwind primitives (Button, Card, etc.) — NOT raw Tailwind color classes like `bg-black` or `text-white`. Starwind components consume the CSS variables from `starwind.css` (`--primary`, `--card`, `--border`, `--muted`, etc.). This is what makes the Token Bridge work at reskin time. If you use `bg-black` directly, it won't change when the brand skin is applied.
+
+**Step 0: Install all needed pro blocks + primitives in one go:**
+```bash
+npx starwind@latest add @starwind-pro/hero-03 @starwind-pro/feature-02 @starwind-pro/feature-04 @starwind-pro/cta-03 @starwind-pro/blog-01 button card badge aspect-ratio image --yes
+```
+
+**Starwind block → our module mapping:**
+
+| Our Module | Starwind Pro Block | Customization needed |
+|---|---|---|
+| Hero | `hero-03` | Replace hardcoded text/image with Sanity props. Keep button components. |
+| TextBlock | No pro block — use `Card` primitive with `bg-muted` | Simple layout, no pro block match |
+| TwoColumn | `feature-02` | Replace checklist with bullet list, wire Sanity images |
+| CardGrid | `feature-04` | Replace icon cards with title+body cards, wire from Sanity `cards[]` |
+| ContentWithImage | `feature-02` (reuse, different props) | Label + heading + subtitle + image |
+| PressFeed | `blog-01` | Customize card layout to horizontal (headline + logo). Wire secondary GROQ query. |
+| PressReleaseFeed | `blog-01` (reuse, different props) | Same card pattern, link to `/news/[slug]` |
+| CtaBanner | `cta-03` | Replace hardcoded content with Sanity heading + buttons + image |
+
+**After installing pro blocks in Step 0, read each generated component file to understand its structure before customizing. The generated files are your starting point — modify them, don't rewrite from scratch.**
+
+The per-component code below shows the LOGIC and PROPS each block needs. Wire them into the installed Starwind pro block structure rather than writing plain HTML.
 
 ---
 
 ### Hero.astro
-Per wireframe: large title, subtitle, body text, two buttons, image placeholder. Light gray background.
+**Base:** `hero-03` (two-column: text left, image right).
 
-```astro
----
-import SanityImage from '../SanityImage.astro'
+Read the generated `Hero03.astro` file from `starwind add`. Adapt it:
+- Replace hardcoded title/description/image with props from Sanity
+- Replace hardcoded buttons with Starwind `<Button variant="primary">` and `<Button variant="outline">`
+- Replace hardcoded image with `<SanityImage>`
+- Section background: use `bg-muted` (maps to `--muted` token) not `bg-gray-100`
 
+Props this component needs to accept:
+```ts
 interface Props {
   title?: string
   subtitle?: string
   body?: string
   primaryButton?: { label: string; url: string; openInNewTab?: boolean }
   secondaryButton?: { label: string; url: string; openInNewTab?: boolean }
-  image?: any
+  image?: any  // Sanity image object
 }
+```
 
-const { title, subtitle, body, primaryButton, secondaryButton, image } = Astro.props
----
+Button pattern (use in Hero, CtaBanner, anywhere buttons appear):
+```astro
+import Button from '../Button.astro'  // or wherever starwind placed it
 
-<section class="bg-gray-100 py-24 px-10">
-  <div class="max-w-6xl mx-auto flex flex-col lg:flex-row gap-16 items-start">
-    <div class="flex-1 max-w-xl">
-      {title && <h1 class="text-7xl font-bold leading-[1.2] tracking-[-0.03em] mb-6">{title}</h1>}
-      {subtitle && <p class="text-xl font-semibold leading-[1.2] mb-4 max-w-md">{subtitle}</p>}
-      {body && <p class="text-base leading-[1.4] text-gray-700 max-w-md mb-8">{body}</p>}
-      <div class="flex gap-4">
-        {primaryButton && (
-          <a href={primaryButton.url} target={primaryButton.openInNewTab ? '_blank' : undefined} class="bg-black text-white px-6 py-3 rounded-[5px] text-lg">
-            {primaryButton.label}
-          </a>
-        )}
-        {secondaryButton && (
-          <a href={secondaryButton.url} target={secondaryButton.openInNewTab ? '_blank' : undefined} class="border border-black text-black px-6 py-3 rounded-[5px] text-lg">
-            {secondaryButton.label}
-          </a>
-        )}
-      </div>
-    </div>
-    {image && (
-      <div class="flex-1">
-        <SanityImage image={image} alt={title || ''} width={700} height={500} class="w-full h-auto" />
-      </div>
-    )}
-  </div>
-</section>
+{primaryButton && (
+  <Button variant="primary" href={primaryButton.url} target={primaryButton.openInNewTab ? '_blank' : undefined}>
+    {primaryButton.label}
+  </Button>
+)}
+{secondaryButton && (
+  <Button variant="outline" href={secondaryButton.url} target={secondaryButton.openInNewTab ? '_blank' : undefined}>
+    {secondaryButton.label}
+  </Button>
+)}
 ```
 
 ---
 
 ### TextBlock.astro
-Per wireframe: full-width text. Large bold heading + body. Optional background image.
+**Base:** No direct pro block match. Use a `<section>` with `bg-muted` (not `bg-gray-100`). Text uses `text-foreground` and `text-muted-foreground` — these map to tokens.
 
-```astro
----
-import imageUrlBuilder from '@sanity/image-url'
-import { sanityClient } from '../../lib/sanity'
+No pro block to install. Write directly but use token-aware classes:
+- Background: `bg-muted` (maps to `--muted`)
+- Heading color: `text-foreground` (maps to `--foreground`)
+- Body color: `text-muted-foreground` (maps to `--muted-foreground`)
+- Background image URL built with `@sanity/image-url` (same as SanityImage pattern)
 
+Props:
+```ts
 interface Props {
   heading?: string
   body?: string
-  backgroundImage?: any
+  backgroundImage?: any  // Sanity image object, optional
 }
-
-const { heading, body, backgroundImage } = Astro.props
-
-let bgUrl = ''
-if (backgroundImage?.asset) {
-  bgUrl = imageUrlBuilder(sanityClient).image(backgroundImage).auto('format').fit('crop').width(1440).url()
-}
----
-
-<section
-  class="py-20 px-10 relative"
-  style={bgUrl ? `background-image: url('${bgUrl}'); background-size: cover; background-position: center;` : ''}
->
-  <div class="max-w-6xl mx-auto relative z-10">
-    {heading && <h2 class="text-5xl font-bold leading-[1.2] tracking-[-0.02em] mb-6 max-w-3xl">{heading}</h2>}
-    {body && <p class="text-2xl font-normal leading-[1.2] max-w-3xl text-gray-800">{body}</p>}
-  </div>
-</section>
 ```
 
 ---
 
 ### TwoColumn.astro
-Per wireframe: left has label + heading + body. Right has 2 image placeholders (grid) + bullet list with its own heading.
+**Base:** `feature-02` (two-column with image + checklist).
 
-```astro
----
-import SanityImage from '../SanityImage.astro'
+Read the generated `Feature02.astro`. Adapt it:
+- Left column: label (monospace, `text-muted-foreground`) + heading + body text
+- Right column top: 2x2 image grid using `<SanityImage>`, borders use `border-border` (maps to `--border`)
+- Right column bottom: bullet heading + bullet list
+- Section background: `bg-accent` (maps to `--accent`, a slightly darker neutral)
 
+Props:
+```ts
 interface Props {
   label?: string
   heading?: string
   body?: string
-  images?: any[]
+  images?: any[]         // Sanity image objects, up to 2
   bulletHeading?: string
   bulletList?: string[]
 }
-
-const { label, heading, body, images = [], bulletHeading, bulletList = [] } = Astro.props
----
-
-<section class="bg-gray-200 py-20 px-10">
-  <div class="max-w-6xl mx-auto grid grid-cols-2 gap-16">
-    <!-- Left -->
-    <div>
-      {label && <p class="font-mono text-sm mb-3">{label}</p>}
-      {heading && <h2 class="text-2xl font-semibold leading-[1.2] tracking-[-0.02em] mb-4">{heading}</h2>}
-      {body && <p class="text-lg leading-[1.2] text-gray-800">{body}</p>}
-    </div>
-    <!-- Right -->
-    <div class="flex flex-col gap-8">
-      <div class="grid grid-cols-2 gap-4">
-        {images.slice(0, 2).map((img: any) => (
-          <SanityImage image={img} alt="" width={350} height={280} class="w-full h-auto border-2 border-black" />
-        ))}
-      </div>
-      {(bulletHeading || bulletList.length > 0) && (
-        <div>
-          {bulletHeading && <h3 class="text-2xl font-semibold leading-[1.2] mb-3">{bulletHeading}</h3>}
-          <ul class="list-disc ml-6 space-y-1">
-            {bulletList.map((item: string) => (
-              <li class="text-lg leading-[1.2]">{item}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-    </div>
-  </div>
-</section>
 ```
 
 ---
 
 ### CardGrid.astro
-Per wireframe: label + heading + subtitle at top, 3 cards in a row. First card has an arrow icon.
+**Base:** `feature-04` (icon card grid).
 
-```astro
----
+Read the generated `Feature04.astro`. Adapt it:
+- Replace icon cards with title + body cards
+- Each card uses Starwind `<Card>` component — bg is `bg-card`, border is `border-border` (both token-driven)
+- First card gets an arrow icon (→) in the top-right corner
+- Section background: `bg-muted`
+- Label text: `text-muted-foreground` in monospace
+
+Props:
+```ts
 interface Props {
   label?: string
   heading?: string
   subtitle?: string
   cards?: { title: string; body: string }[]
 }
-
-const { label, heading, subtitle, cards = [] } = Astro.props
----
-
-<section class="bg-gray-50 py-20 px-10">
-  <div class="max-w-6xl mx-auto">
-    {label && <p class="font-mono text-sm mb-2">{label}</p>}
-    {heading && <h2 class="text-5xl font-bold leading-[1.2] tracking-[-0.02em] mb-4">{heading}</h2>}
-    {subtitle && <p class="text-2xl leading-[1.2] mb-12 max-w-3xl">{subtitle}</p>}
-    <div class="grid grid-cols-3 gap-4">
-      {cards.map((card: any, i: number) => (
-        <div class="border border-black bg-white p-6 relative">
-          {i === 0 && <span class="absolute top-4 right-4 text-xl">→</span>}
-          <h3 class="text-2xl font-semibold leading-[1.2] mb-4">{card.title}</h3>
-          <p class="text-base leading-[1.4]">{card.body}</p>
-        </div>
-      ))}
-    </div>
-  </div>
-</section>
 ```
 
 ---
 
 ### ContentWithImage.astro
-Per wireframe: label + heading + subtitle + large image placeholder. Gray background.
+**Base:** `feature-02` (reuse same pro block, different prop layout).
 
-```astro
----
-import SanityImage from '../SanityImage.astro'
+Adapt the generated `Feature02.astro` into a single-column layout:
+- Label + heading + subtitle stacked at top
+- Full-width `<SanityImage>` below, border uses `border-border`
+- Section background: `bg-accent`
 
+Props:
+```ts
 interface Props {
   label?: string
   heading?: string
   subtitle?: string
-  image?: any
+  image?: any  // Sanity image object
 }
-
-const { label, heading, subtitle, image } = Astro.props
----
-
-<section class="bg-gray-200 py-20 px-10">
-  <div class="max-w-6xl mx-auto">
-    {label && <p class="font-mono text-sm mb-3">{label}</p>}
-    {heading && <h2 class="text-5xl font-bold leading-[1.2] tracking-[-0.02em] mb-4">{heading}</h2>}
-    {subtitle && <p class="text-2xl leading-[1.2] mb-12 max-w-3xl">{subtitle}</p>}
-    {image && (
-      <SanityImage image={image} alt={heading || ''} width={1200} height={600} class="w-full h-auto border-2 border-black" />
-    )}
-  </div>
-</section>
 ```
 
 ---
 
 ### PressFeed.astro
-Runs a secondary GROQ query to fetch the latest N `pressItem` documents. Per wireframe: horizontal cards — headline + optional summary + publication logo on the right. Does not render if no items exist.
+**Base:** `blog-01` (card grid). Customize to horizontal card layout.
 
-```astro
----
-import { sanityClient } from '../../lib/sanity'
+This is the only block (besides PressReleaseFeed) that runs a **secondary GROQ query** — it fetches pressItems independently, not from the page's `modules` array.
 
-interface Props {
-  heading?: string
-  limit?: number
-}
+Read the generated `Blog01.astro`. Adapt each card to horizontal layout:
+- Each card is a `<Card>` component (bg: `bg-card`, border: `border-border`, hover: `hover:bg-accent`)
+- Card content: headline (`text-card-foreground`) + optional summary (`text-muted-foreground`) on left, publication logo on right
+- Cards are `<a>` tags linking externally (`target="_blank"`)
+- Section background: `bg-muted`
+- Does not render at all if query returns zero items
 
-const { heading, limit = 3 } = Astro.props
-
+GROQ query (runs at build time):
+```ts
 const items = await sanityClient.fetch(
   `*[_type == "pressItem"] | order(_createdAt desc) [0..$limit] {
     headline, url, summary,
     publicationLogo{ asset->{ url } }
   }`,
-  { limit: limit - 1 }
+  { limit: limit - 1 }  // GROQ slice is inclusive, so subtract 1
 )
----
+```
 
-{items.length > 0 && (
-  <section class="bg-gray-50 py-20 px-10">
-    <div class="max-w-6xl mx-auto">
-      {heading && <h2 class="text-5xl font-bold leading-[1.2] tracking-[-0.02em] mb-12">{heading}</h2>}
-      <div class="flex flex-col gap-6">
-        {items.map((item: any) => (
-          <a href={item.url} target="_blank" rel="noopener noreferrer" class="border-2 border-black flex items-center p-4 hover:bg-gray-100 transition-colors">
-            <div class="flex-1">
-              <h3 class="text-xl leading-[1.2] mb-1">{item.headline}</h3>
-              {item.summary && <p class="text-base leading-[1.2] text-gray-700">{item.summary}</p>}
-            </div>
-            {item.publicationLogo?.asset?.url && (
-              <div class="ml-6 w-24 flex items-center justify-center">
-                <img src={item.publicationLogo.asset.url} alt="Publication logo" class="max-w-full max-h-12 object-contain" />
-              </div>
-            )}
-          </a>
-        ))}
-      </div>
-    </div>
-  </section>
-)}
+Props:
+```ts
+interface Props {
+  heading?: string
+  limit?: number  // defaults to 3
+}
 ```
 
 ---
 
 ### PressReleaseFeed.astro
-Same card pattern as PressFeed. Links internally to `/news/[slug]`. Uses `ogImage` instead of publication logo. Only shows published releases (those with `publishedAt` set).
+**Base:** `blog-01` (reuse same pro block pattern as PressFeed).
 
-```astro
----
-import { sanityClient } from '../../lib/sanity'
+Identical card structure to PressFeed, but:
+- Cards link internally to `/news/[slug]` (no `target="_blank"`)
+- Uses `ogImage` on the right instead of publication logo
+- Shows `publishedAt` date in `text-muted-foreground`
+- Only fetches releases where `publishedAt` is defined
 
-interface Props {
-  heading?: string
-  limit?: number
-}
-
-const { heading, limit = 3 } = Astro.props
-
+GROQ query:
+```ts
 const items = await sanityClient.fetch(
   `*[_type == "pressRelease" && defined(publishedAt)] | order(publishedAt desc) [0..$limit] {
     title, "slug": slug.current, publishedAt,
@@ -1212,75 +1171,35 @@ const items = await sanityClient.fetch(
   }`,
   { limit: limit - 1 }
 )
----
+```
 
-{items.length > 0 && (
-  <section class="bg-gray-50 py-20 px-10">
-    <div class="max-w-6xl mx-auto">
-      {heading && <h2 class="text-5xl font-bold leading-[1.2] tracking-[-0.02em] mb-12">{heading}</h2>}
-      <div class="flex flex-col gap-6">
-        {items.map((item: any) => (
-          <a href={`/news/${item.slug}`} class="border-2 border-black flex items-center p-4 hover:bg-gray-100 transition-colors">
-            <div class="flex-1">
-              <h3 class="text-xl leading-[1.2] mb-1">{item.title}</h3>
-              {item.publishedAt && <p class="text-sm text-gray-500">{new Date(item.publishedAt).toLocaleDateString()}</p>}
-            </div>
-            {item.ogImage?.asset?.url && (
-              <div class="ml-6 w-24">
-                <img src={item.ogImage.asset.url} alt={item.title} class="w-full h-16 object-cover" />
-              </div>
-            )}
-          </a>
-        ))}
-      </div>
-    </div>
-  </section>
-)}
+Props:
+```ts
+interface Props {
+  heading?: string
+  limit?: number  // defaults to 3
+}
 ```
 
 ---
 
 ### CtaBanner.astro
-Per wireframe: heading + two buttons + image placeholder. Gray background. Same button pattern as Hero.
+**Base:** `cta-03` (split layout with image). Exact match to wireframe.
 
-```astro
----
-import SanityImage from '../SanityImage.astro'
+Read the generated `Cta03.astro`. Adapt it:
+- Replace hardcoded heading with Sanity prop
+- Replace buttons with Starwind `<Button variant="primary">` and `<Button variant="outline">` (same pattern as Hero)
+- Replace image with `<SanityImage>`
+- Section background: `bg-accent`
 
+Props:
+```ts
 interface Props {
   heading?: string
   primaryButton?: { label: string; url: string; openInNewTab?: boolean }
   secondaryButton?: { label: string; url: string; openInNewTab?: boolean }
-  image?: any
+  image?: any  // Sanity image object
 }
-
-const { heading, primaryButton, secondaryButton, image } = Astro.props
----
-
-<section class="bg-gray-200 py-24 px-10">
-  <div class="max-w-6xl mx-auto flex flex-col lg:flex-row gap-16 items-center">
-    <div class="flex-1">
-      {heading && <h2 class="text-5xl font-bold leading-[1.2] tracking-[-0.02em] mb-8">{heading}</h2>}
-      <div class="flex gap-4">
-        {primaryButton && (
-          <a href={primaryButton.url} target={primaryButton.openInNewTab ? '_blank' : undefined} class="bg-black text-white px-6 py-3 rounded-[5px] text-lg">
-            {primaryButton.label}
-          </a>
-        )}
-        {secondaryButton && (
-          <a href={secondaryButton.url} target={secondaryButton.openInNewTab ? '_blank' : undefined} class="border border-black text-black px-6 py-3 rounded-[5px] text-lg">
-            {secondaryButton.label}
-          </a>
-        )}
-      </div>
-    </div>
-    {image && (
-      <div class="flex-1">
-        <SanityImage image={image} alt="" width={700} height={500} class="w-full h-auto border-2 border-black" />
-      </div>
-    )}
-  </div>
-</section>
 ```
 
 ---
