@@ -1,0 +1,55 @@
+/* Starwind Theme Tokens — Skeleton (wireframe) */
+/* REPLACE THIS ENTIRE FILE with Starwind Theme Designer export at Brand Injection phase */
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-outline: var(--outline);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 4px);
+  --radius-xl: calc(var(--radius) + 8px);
+  --radius-2xl: calc(var(--radius) + 16px);
+  --radius-3xl: calc(var(--radius) + 24px);
+  --radius-full: 9999px;
+}
+
+@layer base {
+  :root {
+    /* Neutral wireframe palette — black/white/grays only */
+    --background: oklch(1 0 0);                          /* white */
+    --foreground: oklch(0.06 0.02 264);                  /* near black */
+    --card: oklch(1 0 0);                                /* white */
+    --card-foreground: oklch(0.06 0.02 264);             /* near black */
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.06 0.02 264);
+    --primary: oklch(0.06 0.02 264);                     /* black — filled buttons */
+    --primary-foreground: oklch(1 0 0);                  /* white */
+    --secondary: oklch(0.95 0.003 264);                  /* light gray — secondary bg */
+    --secondary-foreground: oklch(0.06 0.02 264);       /* black */
+    --muted: oklch(0.95 0.003 264);                      /* #f2f2f2 equivalent */
+    --muted-foreground: oklch(0.4 0.02 264);             /* mid gray */
+    --accent: oklch(0.9 0.003 264);                      /* slightly darker gray */
+    --accent-foreground: oklch(0.06 0.02 264);
+    --border: oklch(0.06 0.02 264);                      /* black borders (wireframe) */
+    --input: oklch(0.85 0.003 264);                      /* light gray inputs */
+    --outline: oklch(0.06 0.02 264);
+    --radius: 5px;                                       /* matches wireframe border-radius */
+  }
+}
