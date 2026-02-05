@@ -1,7 +1,5 @@
 ---
-import { Button } from '@/components/starwind/button'
-import { AspectRatio } from '@/components/starwind/aspect-ratio'
-import SanityImage from '../SanityImage.astro'
+import Cta3 from '@/components/starwind-pro/cta-03/Cta3.astro'
 import imageUrlBuilder from '@sanity/image-url'
 import { sanityClient } from '../../lib/sanity'
 
@@ -21,44 +19,9 @@ if (image?.asset) {
 }
 ---
 
-<section class="bg-accent">
-  <div class="mx-auto max-w-7xl px-4 py-24">
-    <div class="grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
-      <!-- Text + buttons -->
-      <div class="flex flex-col">
-        {heading && (
-          <h2 class="text-4xl font-semibold tracking-tight text-foreground">{heading}</h2>
-        )}
-        <div class="mt-8 flex flex-col flex-wrap gap-4 sm:flex-row">
-          {primaryButton && (
-            <Button
-              variant="primary"
-              href={primaryButton.url}
-              target={primaryButton.openInNewTab ? '_blank' : undefined}
-            >
-              {primaryButton.label}
-            </Button>
-          )}
-          {secondaryButton && (
-            <Button
-              variant="outline"
-              href={secondaryButton.url}
-              target={secondaryButton.openInNewTab ? '_blank' : undefined}
-            >
-              {secondaryButton.label}
-            </Button>
-          )}
-        </div>
-      </div>
-
-      <!-- Image -->
-      {imgSrc && (
-        <div class="overflow-hidden rounded-lg border-2 border-border">
-          <AspectRatio ratio={4 / 3}>
-            <img src={imgSrc} alt={heading || ''} class="size-full object-cover" />
-          </AspectRatio>
-        </div>
-      )}
-    </div>
-  </div>
-</section>
+<Cta3
+  title={heading}
+  image={imgSrc ? { src: imgSrc, alt: heading || '' } : undefined}
+  primaryButton={primaryButton ? { text: primaryButton.label, href: primaryButton.url } : undefined}
+  secondaryButton={secondaryButton ? { text: secondaryButton.label, href: secondaryButton.url } : undefined}
+/>

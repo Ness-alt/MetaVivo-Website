@@ -1,0 +1,49 @@
+---
+import IconBrandGithub from "@tabler/icons/filled/brand-github.svg";
+import IconBrandLinkedin from "@tabler/icons/filled/brand-linkedin.svg";
+import IconBrandX from "@tabler/icons/outline/brand-x.svg";
+import IconLogo from "@tabler/icons/outline/stack-2.svg";
+
+import Footer3, { type FooterColumn, type SocialLink } from "./Footer3.astro";
+
+const columns: FooterColumn[] = [
+  {
+    title: "Product",
+    links: [
+      { label: "Features", href: "/features" },
+      { label: "Pricing", href: "/pricing" },
+      { label: "Updates", href: "/updates" },
+    ],
+  },
+  {
+    title: "Company",
+    links: [
+      { label: "About", href: "/about" },
+      { label: "Blog", href: "/blog" },
+      { label: "Careers", href: "/careers" },
+    ],
+  },
+  {
+    title: "Support",
+    links: [
+      { label: "Help Center", href: "/help" },
+      { label: "Contact", href: "/contact" },
+      { label: "Status", href: "/status" },
+    ],
+  },
+];
+
+const socialLinks: SocialLink[] = [
+  { name: "Twitter", href: "https://twitter.com", icon: IconBrandX },
+  { name: "GitHub", href: "https://github.com", icon: IconBrandGithub },
+  { name: "LinkedIn", href: "https://linkedin.com", icon: IconBrandLinkedin },
+];
+---
+
+<Footer3
+  companyName="Your Company"
+  description="Building amazing products that help teams collaborate and grow. Join thousands of satisfied customers worldwide."
+  logoIcon={IconLogo}
+  columns={columns}
+  socialLinks={socialLinks}
+/>

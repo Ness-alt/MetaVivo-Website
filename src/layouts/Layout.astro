@@ -1,7 +1,8 @@
 ---
 import '../styles/global.css'
 import { sanityClient } from '../lib/sanity'
-import { Button } from '@/components/starwind/button'
+import Navbar2, { type NavLink } from '@/components/starwind-pro/navbar-02/Navbar2.astro'
+import Footer3, { type FooterColumn } from '@/components/starwind-pro/footer-03/Footer3.astro'
 
 interface Props {
   title?: string
@@ -29,10 +30,22 @@ const settings = await sanityClient.fetch(`*[_type == "siteSettings"][0]{
 }`)
 
 const pageTitle = seoTitle || title
-const year = new Date().getFullYear()
-const navLinks = settings?.nav?.links || []
+
+// Map Sanity nav links (url) → Navbar2 NavLink (href)
+const navLinks: NavLink[] = (settings?.nav?.links || []).map((link: any) => ({
+  label: link.label,
+  href: link.url,
+}))
 const ctaButton = settings?.nav?.ctaButton
-const footerColumns = settings?.footer?.columns || []
+
+// Map Sanity footer columns (heading, url) → Footer3 FooterColumn (title, href)
+const footerColumns: FooterColumn[] = (settings?.footer?.columns || []).map((col: any) => ({
+  title: col.heading,
+  links: (col.links || []).map((link: any) => ({
+    label: link.label,
+    href: link.url,
+  })),
+}))
 ---
 
 <!DOCTYPE html>
@@ -46,110 +59,22 @@ const footerColumns = settings?.footer?.columns || []
 </head>
 <body class="bg-background text-foreground font-sans min-h-screen flex flex-col">
 
-  <!-- Nav -->
-  <nav class="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-    <div class="mx-auto max-w-7xl px-4">
-      <div class="flex h-16 items-center justify-between">
-        <!-- Logo -->
-        <a href="/" class="text-xl font-bold tracking-tight text-foreground">
-          {settings?.siteName || 'MetaVivo'}
-        </a>
-
-        <!-- Desktop links -->
-        <div class="hidden md:flex items-center gap-6">
-          {navLinks.map((link: any) => (
-            <a href={link.url} class="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors">
-              {link.label}
-            </a>
-          ))}
-          {ctaButton && (
-            <Button variant="primary" href={ctaButton.url} size="sm">
-              {ctaButton.label}
-            </Button>
-          )}
-        </div>
-
-        <!-- Mobile menu toggle -->
-        <button class="md:hidden inline-flex items-center justify-center" aria-label="Toggle menu" id="mobileMenuToggle">
-          <svg xmlns="http://www.w3.org/2000/svg" class="size-6 text-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6h18M3 12h18M3 18h18" />
-          </svg>
-        </button>
-      </div>
-    </div>
-
-    <!-- Mobile menu -->
-    <div class="hidden md:hidden border-t border-border bg-background px-4 py-4" id="mobileMenu">
-      <div class="flex flex-col gap-3">
-        {navLinks.map((link: any) => (
-          <a href={link.url} class="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors">
-            {link.label}
-          </a>
-        ))}
-        {ctaButton && (
-          <Button variant="primary" href={ctaButton.url} size="sm" class="w-full mt-2">
-            {ctaButton.label}
-          </Button>
-        )}
-      </div>
-    </div>
-  </nav>
+  <Navbar2
+    siteName={settings?.siteName || 'MetaVivo'}
+    links={navLinks}
+    ctaText={ctaButton?.label}
+    ctaHref={ctaButton?.url}
+  />
 
   <main class="flex-1">
     <slot />
   </main>
 
-  <!-- Footer -->
-  <footer class="border-t border-border bg-muted">
-    <div class="mx-auto max-w-7xl px-4 py-16">
-      <div class="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
-        <!-- Brand column -->
-        <div class="lg:col-span-1">
-          <a href="/" class="text-xl font-bold tracking-tight text-foreground">
-            {settings?.siteName || 'MetaVivo'}
-          </a>
-          {settings?.footer?.tagline && (
-            <p class="mt-4 text-sm text-muted-foreground max-w-xs">
-              {settings.footer.tagline}
-            </p>
-          )}
-        </div>
-
-        <!-- Link columns -->
-        {footerColumns.map((col: any) => (
-          <div>
-            <h4 class="text-sm font-semibold text-foreground mb-4">{col.heading}</h4>
-            <ul class="flex flex-col gap-2">
-              {(col.links || []).map((link: any) => (
-                <li>
-                  <a href={link.url} class="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
-    </div>
-
-    <!-- Bottom bar -->
-    <div class="border-t border-border">
-      <div class="mx-auto max-w-7xl px-4 py-4">
-        <p class="text-xs text-muted-foreground">© {year} {settings?.siteName || 'METAVIVO'}. All rights reserved.</p>
-      </div>
-    </div>
-  </footer>
+  <Footer3
+    companyName={settings?.siteName || 'MetaVivo'}
+    description={settings?.footer?.tagline}
+    columns={footerColumns}
+    socialLinks={[]}
+  />
 </body>
 </html>
-
-<script>
-  // Mobile menu toggle
-  const toggle = document.getElementById('mobileMenuToggle')
-  const menu = document.getElementById('mobileMenu')
-  if (toggle && menu) {
-    toggle.addEventListener('click', () => {
-      menu.classList.toggle('hidden')
-    })
-  }
-</script>

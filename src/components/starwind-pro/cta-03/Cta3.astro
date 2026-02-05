@@ -1,0 +1,99 @@
+---
+import IconArrowRight from "@tabler/icons/outline/arrow-right.svg";
+import type { HTMLAttributes } from "astro/types";
+import { tv } from "tailwind-variants";
+
+import { Button } from "@/components/starwind/button";
+import { Image } from "@/components/starwind/image";
+
+export interface ButtonConfig {
+  text: string;
+  href: string;
+}
+
+export interface ImageConfig {
+  src: string;
+  alt: string;
+}
+
+interface Props extends HTMLAttributes<"section"> {
+  /** Optional badge text displayed above the title */
+  badge?: string;
+  /** Main heading text */
+  title?: string;
+  /** Description text */
+  description?: string;
+  /** Image configuration */
+  image?: ImageConfig;
+  /** Primary button configuration */
+  primaryButton?: ButtonConfig;
+  /** Secondary button configuration (optional) */
+  secondaryButton?: ButtonConfig;
+}
+
+const cta3Styles = tv({
+  base: "@container mx-auto w-full max-w-7xl px-4 py-24",
+});
+
+const {
+  badge,
+  title = "Transform your business with our platform",
+  description = "Join thousands of companies already using our platform to streamline operations, boost productivity, and drive growth. Get started today with a free trial.",
+  image = {
+    src: "https://images.unsplash.com/photo-1551434678-e076c223a692?w=800&h=600&fit=crop",
+    alt: "Team collaboration",
+  },
+  primaryButton = { text: "Start Free Trial", href: "/signup" },
+  secondaryButton,
+  class: className,
+  ...rest
+} = Astro.props;
+---
+
+<section class={cta3Styles({ class: className })} {...rest}>
+  <div class="bg-muted overflow-hidden rounded-2xl border">
+    <div class="grid @2xl:grid-cols-2 @3xl:gap-12">
+      <!-- Content -->
+      <div class="order-2 p-6 @lg:order-1 @3xl:p-16">
+        {
+          badge && (
+            <div class="bg-primary-accent/10 mb-4 inline-block rounded-full px-4 py-1.5">
+              <span class="text-primary-accent text-sm font-medium">{badge}</span>
+            </div>
+          )
+        }
+        <h2
+          class="font-heading mb-4 text-3xl font-semibold tracking-tight @2xl:text-4xl @4xl:text-5xl"
+        >
+          {title}
+        </h2>
+        <p class="text-muted-foreground mb-8 text-pretty @4xl:text-lg">
+          {description}
+        </p>
+        <div class="flex flex-wrap items-center gap-4">
+          <Button variant="primary" href={primaryButton.href}>
+            {primaryButton.text}
+          </Button>
+          {
+            secondaryButton && (
+              <Button variant="outline" class="group" href={secondaryButton.href}>
+                {secondaryButton.text}
+                <IconArrowRight class="transition-transform group-hover:translate-x-1" />
+              </Button>
+            )
+          }
+        </div>
+      </div>
+
+      <!-- Image -->
+      <div class="order-1 @lg:order-2">
+        <Image
+          src={image.src}
+          alt={image.alt}
+          class="size-full object-cover @lg:h-full"
+          loading="lazy"
+        />
+      </div>
+    </div>
+  </div>
+</section>

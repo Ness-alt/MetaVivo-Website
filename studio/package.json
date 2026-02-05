@@ -1,12 +1,24 @@
 {
   "name": "metavivo-studio",
   "private": true,
+  "version": "1.0.0",
+  "main": "package.json",
+  "license": "UNLICENSED",
   "scripts": {
-    "dev": "sanity start",
+    "dev": "sanity dev",
     "start": "sanity start",
-    "build": "sanity build"
+    "build": "sanity build",
+    "deploy": "sanity deploy"
   },
   "dependencies": {
-    "sanity": "^3.0.0"
+    "@sanity/vision": "^5.8.0",
+    "react": "^19.1",
+    "react-dom": "^19.1",
+    "sanity": "^5.8.0",
+    "styled-components": "^6.1.18"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1",
+    "typescript": "^5.8"
   }
 }
