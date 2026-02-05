@@ -1,0 +1,12 @@
+{
+  "name": "metavivo-studio",
+  "private": true,
+  "scripts": {
+    "dev": "sanity start",
+    "start": "sanity start",
+    "build": "sanity build"
+  },
+  "dependencies": {
+    "sanity": "^3.0.0"
+  }
+}
