@@ -63,4 +63,4 @@ function renderBlocks(blocks: any[]): string {
 const rendered = renderBlocks(value)
 ---
 
-<div class="prose max-w-none">{@html rendered}</div>
+<div class="prose max-w-none" set:html={rendered}></div>

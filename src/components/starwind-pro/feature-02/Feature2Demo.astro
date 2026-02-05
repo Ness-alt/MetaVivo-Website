@@ -1,0 +1,21 @@
+---
+import Feature2, { type FeatureItem } from "./Feature2.astro";
+
+const features: FeatureItem[] = [
+  { text: "Real-time collaboration with your team" },
+  { text: "Advanced analytics and reporting" },
+  { text: "Seamless integrations with your favorite tools" },
+  { text: "Enterprise-grade security and compliance" },
+  { text: "24/7 customer support" },
+];
+---
+
+<Feature2
+  title="Everything you need to succeed"
+  description="Our platform provides all the tools and features you need to streamline your workflow and boost productivity."
+  features={features}
+  image={{
+    src: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop",
+    alt: "Dashboard analytics",
+  }}
+/>
