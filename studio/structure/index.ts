@@ -1,44 +1,29 @@
-const singletonTypes = [
-  'siteSettings',
-  'home',
-  'about',
-  'science',
-  'careers',
-  'contact',
-  'termsOfService',
-  'privacyPolicy',
-  'disclosures',
+const pageTypes = [
+  { id: 'home', label: 'Homepage' },
+  { id: 'about', label: 'About' },
+  { id: 'science', label: 'Science' },
+  { id: 'careers', label: 'Careers' },
+  { id: 'contact', label: 'Contact' },
 ]
 
-const singletonLabels: Record<string, string> = {
-  siteSettings: 'Site Settings',
-  home: 'Homepage',
-  about: 'About',
-  science: 'Science',
-  careers: 'Careers',
-  contact: 'Contact',
-  termsOfService: 'Terms of Service',
-  privacyPolicy: 'Privacy Policy',
-  disclosures: 'Disclosures',
-}
+const adminTypes = [
+  { id: 'siteSettings', label: 'Site Settings' },
+  { id: 'termsOfService', label: 'Terms of Service' },
+  { id: 'privacyPolicy', label: 'Privacy Policy' },
+  { id: 'disclosures', label: 'Disclosures' },
+]
 
 export const structure = (S: any) =>
   S.list()
     .title('Content')
     .items([
-      S.listItem().title('Site Settings').child(
-        S.document().documentId('siteSettings').schemaType('siteSettings')
-      ),
-      S.divider(),
       S.listItem().title('Pages').child(
         S.list().title('Pages').items(
-          singletonTypes
-            .filter((id) => id !== 'siteSettings')
-            .map((id) =>
-              S.listItem()
-                .title(singletonLabels[id] || id)
-                .child(S.document().documentId(id).schemaType(id))
-            )
+          pageTypes.map(({ id, label }) =>
+            S.listItem()
+              .title(label)
+              .child(S.document().documentId(id).schemaType(id))
+          )
         )
       ),
       S.divider(),
@@ -54,5 +39,15 @@ export const structure = (S: any) =>
       ),
       S.listItem().title('Portfolio').child(
         S.documentTypeList('portfolioCompany').title('Portfolio Companies')
+      ),
+      S.divider(),
+      S.listItem().title('Admin').child(
+        S.list().title('Admin').items(
+          adminTypes.map(({ id, label }) =>
+            S.listItem()
+              .title(label)
+              .child(S.document().documentId(id).schemaType(id))
+          )
+        )
       ),
     ])
