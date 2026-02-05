@@ -27,6 +27,8 @@ import ctaBanner from './modules/ctaBanner'
 // Collection types
 import pressItem from './collections/pressItem'
 import pressRelease from './collections/pressRelease'
+import staffMember from './collections/staffMember'
+import portfolioCompany from './collections/portfolioCompany'
 
 export const schemaTypes = [
   // Objects
@@ -58,4 +60,6 @@ export const schemaTypes = [
   // Collections
   pressItem,
   pressRelease,
+  staffMember,
+  portfolioCompany,
 ]

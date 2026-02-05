@@ -48,4 +48,11 @@ export const structure = (S: any) =>
       S.listItem().title('Press Releases').child(
         S.documentTypeList('pressRelease').title('Press Releases')
       ),
+      S.divider(),
+      S.listItem().title('Staff').child(
+        S.documentTypeList('staffMember').title('Staff Members')
+      ),
+      S.listItem().title('Portfolio').child(
+        S.documentTypeList('portfolioCompany').title('Portfolio Companies')
+      ),
     ])
