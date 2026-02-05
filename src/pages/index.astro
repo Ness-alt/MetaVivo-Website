@@ -1,9 +1,28 @@
 ---
-import '../styles/global.css'
+import Layout from '../layouts/Layout.astro'
+import PageBuilder from '../components/PageBuilder.astro'
+import { sanityClient } from '../lib/sanity'
+
+const home = await sanityClient.fetch(`*[_type == "home"][0]{
+  title,
+  seoTitle,
+  seoDescription,
+  ogImage{ asset->{ url } },
+  modules[]{ ... }
+}`)
 ---
-<html lang="en">
-<head><title>MetaVivo</title></head>
-<body>
-  <h1>MetaVivo</h1>
-</body>
-</html>
+
+<Layout
+  title="MetaVivo"
+  seoTitle={home?.seoTitle}
+  seoDescription={home?.seoDescription}
+  ogImage={home?.ogImage}
+>
+  {home ? (
+    <PageBuilder modules={home.modules} />
+  ) : (
+    <div class="py-24 px-10 text-center">
+      <p class="text-lg text-muted-foreground">Homepage content coming soon.</p>
+    </div>
+  )}
+</Layout>

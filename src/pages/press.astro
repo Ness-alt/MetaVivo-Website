@@ -1,0 +1,37 @@
+---
+import Layout from '../layouts/Layout.astro'
+import { Card } from '@/components/starwind/card'
+import { sanityClient } from '../lib/sanity'
+
+const items = await sanityClient.fetch(`*[_type == "pressItem"] | order(_createdAt desc) {
+  headline, url, summary, publishedAt,
+  publicationLogo{ asset->{ url } }
+}`)
+---
+
+<Layout title="Press">
+  <div class="mx-auto max-w-7xl px-4 py-24">
+    <h1 class="text-5xl font-bold tracking-tight text-foreground mb-12">Press</h1>
+    <div class="flex flex-col gap-4">
+      {items.map((item: any) => (
+        <a href={item.url} target="_blank" rel="noopener noreferrer" class="group">
+          <Card class="group-hover:ring-foreground/30 transition-shadow">
+            <div class="flex items-center gap-6 p-6">
+              <div class="flex-1">
+                <h2 class="text-xl font-semibold text-card-foreground group-hover:underline">{item.headline}</h2>
+                {item.summary && <p class="text-sm text-muted-foreground mt-1">{item.summary}</p>}
+                {item.publishedAt && <p class="text-xs text-muted-foreground mt-2">{new Date(item.publishedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>}
+              </div>
+              {item.publicationLogo?.asset?.url && (
+                <div class="shrink-0 w-24 flex items-center justify-end">
+                  <img src={item.publicationLogo.asset.url} alt="Publication logo" class="max-w-full max-h-10 object-contain" />
+                </div>
+              )}
+            </div>
+          </Card>
+        </a>
+      ))}
+      {items.length === 0 && <p class="text-muted-foreground">No press items yet.</p>}
+    </div>
+  </div>
+</Layout>

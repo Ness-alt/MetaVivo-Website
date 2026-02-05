@@ -1,0 +1,32 @@
+---
+interface NewsArticleData {
+  title: string
+  publishedAt?: string
+  ogImage?: { asset?: { url?: string } }
+}
+
+interface Props {
+  type: 'NewsArticle'
+  data: NewsArticleData
+}
+
+const { type, data } = Astro.props
+
+const schemas: Record<string, object> = {
+  NewsArticle: {
+    '@context': 'https://schema.org',
+    '@type': 'NewsArticle',
+    headline: data.title,
+    ...(data.publishedAt && { datePublished: data.publishedAt }),
+    ...(data.ogImage?.asset?.url && { image: data.ogImage.asset.url }),
+    publisher: {
+      '@type': 'Organization',
+      name: 'MetaVivo',
+    },
+  },
+}
+
+const jsonLd = JSON.stringify(schemas[type] || {})
+---
+
+<script type="application/ld+json">{jsonLd}</script>

@@ -1,0 +1,29 @@
+---
+import Layout from '../layouts/Layout.astro'
+import PageBuilder from '../components/PageBuilder.astro'
+import { sanityClient } from '../lib/sanity'
+
+const page = await sanityClient.fetch(`*[_type == "disclosures"][0]{
+  title, seoTitle, seoDescription,
+  ogImage{ asset->{ url } },
+  modules[]{ ... }
+}`)
+
+if (!page) {
+  Astro.response.status = 404
+  Astro.response.statusText = 'Not Found'
+}
+---
+
+{page ? (
+  <Layout title={page.title || 'Disclosures'} seoTitle={page.seoTitle} seoDescription={page.seoDescription}>
+    <PageBuilder modules={page.modules} />
+  </Layout>
+) : (
+  <Layout title="Page Not Found">
+    <div class="py-24 px-10 text-center">
+      <h1 class="text-4xl font-bold mb-4 text-foreground">404</h1>
+      <p class="text-muted-foreground">This page is not yet available.</p>
+    </div>
+  </Layout>
+)}

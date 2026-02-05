@@ -1,0 +1,33 @@
+---
+import Layout from '../../layouts/Layout.astro'
+import PortableText from '../../components/PortableText.astro'
+import SchemaOrg from '../../components/SchemaOrg.astro'
+import { sanityClient } from '../../lib/sanity'
+
+export async function getStaticPaths() {
+  const releases = await sanityClient.fetch(`*[_type == "pressRelease" && defined(slug) && defined(publishedAt)]{
+    "slug": slug.current,
+    title, body, publishedAt,
+    ogImage{ asset->{ url } }
+  }`)
+  return releases.map((release: any) => ({
+    params: { slug: release.slug },
+    props: { release },
+  }))
+}
+
+const { release } = Astro.props
+---
+
+<Layout title={release.title} seoTitle={release.title} ogImage={release.ogImage}>
+  <SchemaOrg type="NewsArticle" data={release} />
+  <article class="mx-auto max-w-3xl px-4 py-24">
+    <h1 class="text-5xl font-bold tracking-tight text-foreground mb-4">{release.title}</h1>
+    {release.publishedAt && (
+      <p class="text-sm text-muted-foreground mb-12">
+        {new Date(release.publishedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+      </p>
+    )}
+    <PortableText value={release.body} />
+  </article>
+</Layout>

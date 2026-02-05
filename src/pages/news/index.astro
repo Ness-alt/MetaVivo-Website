@@ -1,0 +1,36 @@
+---
+import Layout from '../../layouts/Layout.astro'
+import { Card } from '@/components/starwind/card'
+import { sanityClient } from '../../lib/sanity'
+
+const releases = await sanityClient.fetch(`*[_type == "pressRelease" && defined(publishedAt)] | order(publishedAt desc) {
+  title, "slug": slug.current, publishedAt,
+  ogImage{ asset->{ url } }
+}`)
+---
+
+<Layout title="News">
+  <div class="mx-auto max-w-7xl px-4 py-24">
+    <h1 class="text-5xl font-bold tracking-tight text-foreground mb-12">News</h1>
+    <div class="flex flex-col gap-4">
+      {releases.map((item: any) => (
+        <a href={`/news/${item.slug}`} class="group">
+          <Card class="group-hover:ring-foreground/30 transition-shadow">
+            <div class="flex items-center gap-6 p-6">
+              <div class="flex-1">
+                <h2 class="text-xl font-semibold text-card-foreground group-hover:underline">{item.title}</h2>
+                {item.publishedAt && <p class="text-sm text-muted-foreground mt-1">{new Date(item.publishedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>}
+              </div>
+              {item.ogImage?.asset?.url && (
+                <div class="shrink-0 w-24">
+                  <img src={item.ogImage.asset.url} alt={item.title} class="w-full h-16 object-cover rounded" />
+                </div>
+              )}
+            </div>
+          </Card>
+        </a>
+      ))}
+      {releases.length === 0 && <p class="text-muted-foreground">No press releases yet.</p>}
+    </div>
+  </div>
+</Layout>
