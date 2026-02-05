@@ -1,5 +1,3 @@
-import { defineStructure } from 'sanity'
-
 const singletonTypes = [
   'siteSettings',
   'home',
@@ -24,7 +22,7 @@ const singletonLabels: Record<string, string> = {
   disclosures: 'Disclosures',
 }
 
-export const structure = defineStructure((S) =>
+export const structure = (S: any) =>
   S.list()
     .title('Content')
     .items([
@@ -51,4 +49,3 @@ export const structure = defineStructure((S) =>
         S.documentTypeList('pressRelease').title('Press Releases')
       ),
     ])
-)
