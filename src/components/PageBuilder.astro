@@ -1,0 +1,33 @@
+---
+import Hero from './blocks/Hero.astro'
+import TextBlock from './blocks/TextBlock.astro'
+import TwoColumn from './blocks/TwoColumn.astro'
+import CardGrid from './blocks/CardGrid.astro'
+import ContentWithImage from './blocks/ContentWithImage.astro'
+import PressFeed from './blocks/PressFeed.astro'
+import PressReleaseFeed from './blocks/PressReleaseFeed.astro'
+import CtaBanner from './blocks/CtaBanner.astro'
+
+interface Props {
+  modules: any[]
+}
+
+const { modules } = Astro.props
+const safeModules = modules || []
+
+const componentMap: Record<string, any> = {
+  hero: Hero,
+  textBlock: TextBlock,
+  twoColumn: TwoColumn,
+  cardGrid: CardGrid,
+  contentWithImage: ContentWithImage,
+  pressFeed: PressFeed,
+  pressReleaseFeed: PressReleaseFeed,
+  ctaBanner: CtaBanner,
+}
+---
+
+{safeModules.map((module: any) => {
+  const Component = componentMap[module._type]
+  return Component ? <Component {...module} /> : null
+})}

@@ -1,0 +1,42 @@
+---
+import { Card, CardContent } from '@/components/starwind/card'
+
+interface Props {
+  label?: string
+  heading?: string
+  subtitle?: string
+  cards?: { title: string; body: string }[]
+}
+
+const { label, heading, subtitle, cards = [] } = Astro.props
+---
+
+<section class="bg-muted">
+  <div class="mx-auto max-w-7xl px-4 py-24">
+    <div class="mb-16 text-center">
+      {label && (
+        <p class="text-sm font-mono text-muted-foreground mb-3 uppercase tracking-wider">{label}</p>
+      )}
+      {heading && (
+        <h2 class="text-4xl font-semibold tracking-tight text-foreground">{heading}</h2>
+      )}
+      {subtitle && (
+        <p class="text-lg text-muted-foreground mt-3 max-w-2xl mx-auto">{subtitle}</p>
+      )}
+    </div>
+
+    <div class="grid gap-6 md:grid-cols-3">
+      {cards.map((card, i) => (
+        <Card class="relative">
+          {i === 0 && (
+            <span class="absolute top-4 right-4 text-2xl text-muted-foreground font-light" aria-hidden="true">→</span>
+          )}
+          <CardContent>
+            <h3 class="text-lg font-semibold text-foreground mb-2">{card.title}</h3>
+            <p class="text-sm text-muted-foreground">{card.body}</p>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  </div>
+</section>

@@ -1,0 +1,34 @@
+---
+import Hero3 from '@/components/starwind-pro/hero-03/Hero3.astro'
+import SanityImage from '../SanityImage.astro'
+import imageUrlBuilder from '@sanity/image-url'
+import { sanityClient } from '../../lib/sanity'
+
+interface Props {
+  title?: string
+  subtitle?: string
+  body?: string
+  primaryButton?: { label: string; url: string; openInNewTab?: boolean }
+  secondaryButton?: { label: string; url: string; openInNewTab?: boolean }
+  image?: any
+}
+
+const { title, subtitle, body, primaryButton, secondaryButton, image } = Astro.props
+
+// Build image URL if present
+let imgSrc = ''
+if (image?.asset) {
+  const builder = imageUrlBuilder(sanityClient)
+  imgSrc = builder.image(image).auto('format').fit('crop').width(800).url()
+}
+---
+
+<Hero3
+  heading={title}
+  description={body || subtitle}
+  primaryButtonText={primaryButton?.label}
+  primaryButtonHref={primaryButton?.url}
+  secondaryButtonText={secondaryButton?.label}
+  secondaryButtonHref={secondaryButton?.url}
+  image={imgSrc ? { src: imgSrc, alt: title || '' } : undefined}
+/>

@@ -1,0 +1,56 @@
+---
+import { Card } from '@/components/starwind/card'
+import { sanityClient } from '../../lib/sanity'
+
+interface Props {
+  heading?: string
+  limit?: number
+}
+
+const { heading, limit = 3 } = Astro.props
+
+const items = await sanityClient.fetch(
+  `*[_type == "pressItem"] | order(_createdAt desc) [0..$limit] {
+    headline, url, summary,
+    publicationLogo{ asset->{ url } }
+  }`,
+  { limit: limit - 1 }
+)
+---
+
+{items.length > 0 && (
+  <section class="bg-muted">
+    <div class="mx-auto max-w-7xl px-4 py-24">
+      {heading && (
+        <h2 class="text-4xl font-semibold tracking-tight text-foreground mb-12">{heading}</h2>
+      )}
+
+      <div class="flex flex-col gap-4">
+        {items.map((item: any) => (
+          <a
+            href={item.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="group"
+          >
+            <Card class="group-hover:ring-foreground/30 transition-shadow">
+              <div class="flex items-center gap-6 p-6">
+                <div class="flex-1">
+                  <h3 class="text-lg font-semibold text-card-foreground group-hover:underline">{item.headline}</h3>
+                  {item.summary && (
+                    <p class="text-sm text-muted-foreground mt-1">{item.summary}</p>
+                  )}
+                </div>
+                {item.publicationLogo?.asset?.url && (
+                  <div class="shrink-0 w-24 flex items-center justify-end">
+                    <img src={item.publicationLogo.asset.url} alt="Publication logo" class="max-w-full max-h-10 object-contain" />
+                  </div>
+                )}
+              </div>
+            </Card>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+)}

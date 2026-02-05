@@ -1,0 +1,60 @@
+---
+import SanityImage from '../SanityImage.astro'
+
+interface Props {
+  label?: string
+  heading?: string
+  body?: string
+  images?: any[]
+  bulletHeading?: string
+  bulletList?: string[]
+}
+
+const { label, heading, body, images = [], bulletHeading, bulletList = [] } = Astro.props
+---
+
+<section class="bg-accent">
+  <div class="mx-auto max-w-7xl px-4 py-24">
+    <div class="grid gap-12 lg:grid-cols-2 lg:gap-16">
+      <!-- Left: text stack -->
+      <div class="flex flex-col justify-center">
+        {label && (
+          <p class="text-sm font-mono text-muted-foreground mb-3 uppercase tracking-wider">{label}</p>
+        )}
+        {heading && (
+          <h2 class="text-4xl font-semibold tracking-tight text-foreground mb-6">{heading}</h2>
+        )}
+        {body && (
+          <p class="text-lg text-muted-foreground leading-relaxed">{body}</p>
+        )}
+      </div>
+
+      <!-- Right: image grid + bullet list -->
+      <div class="flex flex-col gap-8">
+        {images.length > 0 && (
+          <div class="grid grid-cols-2 gap-4">
+            {images.map((img: any) => (
+              <div class="overflow-hidden rounded-lg border-2 border-border">
+                <SanityImage image={img} width={400} class="size-full object-cover" />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {bulletHeading && (
+          <h3 class="text-xl font-semibold text-foreground">{bulletHeading}</h3>
+        )}
+        {bulletList.length > 0 && (
+          <ul class="space-y-2">
+            {bulletList.map((item: string) => (
+              <li class="flex items-start gap-2">
+                <span class="mt-1.5 inline-block size-1.5 shrink-0 rounded-full bg-foreground"></span>
+                <span class="text-sm text-foreground">{item}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
+  </div>
+</section>

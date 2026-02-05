@@ -1,0 +1,32 @@
+---
+import imageUrlBuilder from '@sanity/image-url'
+import { sanityClient } from '../../lib/sanity'
+
+interface Props {
+  heading?: string
+  body?: string
+  backgroundImage?: any
+}
+
+const { heading, body, backgroundImage } = Astro.props
+
+let bgStyle = ''
+if (backgroundImage?.asset) {
+  const builder = imageUrlBuilder(sanityClient)
+  const bgUrl = builder.image(backgroundImage).auto('format').fit('cover').width(1600).url()
+  bgStyle = `background-image: url('${bgUrl}'); background-size: cover; background-position: center;`
+}
+---
+
+<section class="bg-muted" style={bgStyle}>
+  <div class="mx-auto max-w-7xl px-4 py-24">
+    <div class="max-w-3xl mx-auto text-center">
+      {heading && (
+        <h2 class="text-4xl font-semibold tracking-tight text-foreground mb-6">{heading}</h2>
+      )}
+      {body && (
+        <p class="text-lg text-muted-foreground leading-relaxed">{body}</p>
+      )}
+    </div>
+  </div>
+</section>
