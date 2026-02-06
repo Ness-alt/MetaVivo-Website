@@ -117,9 +117,9 @@ These are the reusable blocks that live inside the `modules` array. The marketin
 | Module `_type` | Fields |
 |---|---|
 | `hero` | `title`, `subtitle`, `body`, `primaryButton`, `secondaryButton`, `image` |
-| `textBlock` | `heading`, `body`, `backgroundImage` (optional) |
-| `twoColumn` | `label`, `heading`, `body`, `images[]`, `bulletList[]` |
-| `cardGrid` | `heading`, `subtitle`, `cards[]` → each: `title`, `body` |
+| `textBlock` | `heading`, `body` (Portable Text), `backgroundImage` (optional) |
+| `twoColumn` | `label`, `heading`, `body`, `images[]`, `bulletHeading`, `bulletList[]` |
+| `cardGrid` | `label`, `heading`, `subtitle`, `cards[]` → each: `title`, `body` |
 | `contentWithImage` | `label`, `heading`, `subtitle`, `image` |
 | `pressFeed` | `heading`, `limit` (number — pulls latest N from `pressItem`) |
 | `pressReleaseFeed` | `heading`, `limit` (number — pulls latest N from `pressRelease`) |
