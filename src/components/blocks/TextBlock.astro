@@ -1,10 +1,11 @@
 ---
 import imageUrlBuilder from '@sanity/image-url'
 import { sanityClient } from '../../lib/sanity'
+import PortableText from '../PortableText.astro'
 
 interface Props {
   heading?: string
-  body?: string
+  body?: any[]
   backgroundImage?: any
 }
 
@@ -24,8 +25,8 @@ if (backgroundImage?.asset) {
       {heading && (
         <h2 class="text-4xl font-semibold tracking-tight text-foreground mb-6">{heading}</h2>
       )}
-      {body && (
-        <p class="text-lg text-muted-foreground leading-relaxed">{body}</p>
+      {body && body.length > 0 && (
+        <PortableText value={body} />
       )}
     </div>
   </div>

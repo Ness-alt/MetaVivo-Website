@@ -1,0 +1,11 @@
+---
+import type { MarkProps } from "astro-portabletext/lib/types"
+
+type LinkDef = { href?: string }
+type Props = MarkProps<LinkDef>
+
+const { node } = Astro.props
+const href = node.markDef?.href || '#'
+---
+
+<a href={href} class="text-primary underline hover:text-primary/80"><slot /></a>

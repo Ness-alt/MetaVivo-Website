@@ -40,6 +40,24 @@ export const resolve: PresentationPluginOptions['resolve'] = {
         locations: [{ title: doc?.title || 'Contact', href: '/contact' }],
       }),
     },
+    termsOfService: {
+      select: { title: 'title' },
+      resolve: (doc) => ({
+        locations: [{ title: doc?.title || 'Terms of Service', href: '/terms-of-service' }],
+      }),
+    },
+    privacyPolicy: {
+      select: { title: 'title' },
+      resolve: (doc) => ({
+        locations: [{ title: doc?.title || 'Privacy Policy', href: '/privacy-policy' }],
+      }),
+    },
+    disclosures: {
+      select: { title: 'title' },
+      resolve: (doc) => ({
+        locations: [{ title: doc?.title || 'Disclosures', href: '/disclosures' }],
+      }),
+    },
 
     // Collections
     pressRelease: {
@@ -51,7 +69,7 @@ export const resolve: PresentationPluginOptions['resolve'] = {
         locations: [
           {
             title: doc?.title || 'Untitled',
-            href: `/press/${doc?.slug}`,
+            href: `/news/${doc?.slug}`,
           },
         ],
       }),

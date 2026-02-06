@@ -3,7 +3,7 @@ import Layout from '../layouts/Layout.astro'
 import { Card } from '@/components/starwind/card'
 import { sanityClient } from '../lib/sanity'
 
-const items = await sanityClient.fetch(`*[_type == "pressItem"] | order(_createdAt desc) {
+const items = await sanityClient.fetch(`*[_type == "pressItem"] | order(publishedAt desc) {
   headline, url, summary, publishedAt,
   publicationLogo{ asset->{ url } }
 }`)

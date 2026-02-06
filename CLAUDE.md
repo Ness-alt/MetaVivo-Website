@@ -2,7 +2,7 @@
 
 ## Project State
 
-Astro + Sanity skeleton is built and deployed. Schemas are live on Sanity project `z8iaqdht` / `production`. Frontend builds clean (10 pages). All pages currently show fallbacks because no content has been authored yet.
+Astro + Sanity skeleton is built and deployed. Schemas are live on Sanity project `z8iaqdht` / `production`. Frontend builds clean (13 pages). All pages currently show fallbacks because no content has been authored yet.
 
 **Next step:** Seed placeholder content via Sanity API or Studio. Start with `siteSettings`, then singleton pages, then press collections.
 
@@ -121,6 +121,8 @@ Each singleton's `modules[]` array accepts these types (defined in `studio/schem
 - **Starwind pro blocks need `STARWIND_LICENSE_KEY`** in the shell env at install time. Already installed; key is in `.env.local`.
 - **Footer3 has hardcoded bottom links** — we patched `/privacy` → `/privacy-policy` and `/terms` → `/terms-of-service` directly in the pro block file.
 - **`@sanity/image-url` builder** — images come from Sanity as `{ asset: { _ref: "image-..." } }`. Build URLs with `imageUrlBuilder(sanityClient).image(sanityImageProp).auto('format').fit('crop').width(N).url()`.
+- **PortableText uses `astro-portabletext` library** — `PortableText.astro` wraps the `astro-portabletext` package with custom Starwind-styled component overrides in `src/components/portable-text/` (Block, List, ListItem, Link). No `set:html` is used. The `onMissingComponent` prop is set to `false` to suppress warnings for unhandled custom types.
+- **`textBlock.body` is Portable Text** — the schema uses `type: 'array', of: [{ type: 'block' }]`, and `TextBlock.astro` renders it via the `PortableText` component.
 
 ## Starwind Pro Blocks — Prop Quick Reference
 
@@ -172,5 +174,6 @@ secondaryButton?: { text: string; href: string }
 | Module router | `src/components/PageBuilder.astro` |
 | Schema index | `studio/schemaTypes/index.ts` |
 | Studio structure | `studio/structure/index.ts` |
+| Portable Text overrides | `src/components/portable-text/` (Block, List, ListItem, Link) |
 | Presentation resolver | `studio/presentation/resolve.ts` (deferred use) |
 | Env vars | `.env.local` (gitignored) |

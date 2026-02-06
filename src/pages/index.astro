@@ -10,19 +10,27 @@ const home = await sanityClient.fetch(`*[_type == "home"][0]{
   ogImage{ asset->{ url } },
   modules[]{ ... }
 }`)
+
+if (!home) {
+  Astro.response.status = 404
+  Astro.response.statusText = 'Not Found'
+}
 ---
 
-<Layout
-  title="MetaVivo"
-  seoTitle={home?.seoTitle}
-  seoDescription={home?.seoDescription}
-  ogImage={home?.ogImage}
->
-  {home ? (
+{home ? (
+  <Layout
+    title="MetaVivo"
+    seoTitle={home?.seoTitle}
+    seoDescription={home?.seoDescription}
+    ogImage={home?.ogImage}
+  >
     <PageBuilder modules={home.modules} />
-  ) : (
+  </Layout>
+) : (
+  <Layout title="Page Not Found">
     <div class="py-24 px-10 text-center">
-      <p class="text-lg text-muted-foreground">Homepage content coming soon.</p>
+      <h1 class="text-4xl font-bold mb-4 text-foreground">404</h1>
+      <p class="text-muted-foreground">This page is not yet available.</p>
     </div>
-  )}
-</Layout>
+  </Layout>
+)}

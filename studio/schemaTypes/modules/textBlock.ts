@@ -6,7 +6,7 @@ export default defineType({
   type: 'object',
   fields: [
     { name: 'heading', title: 'Heading', type: 'string' },
-    { name: 'body', title: 'Body', type: 'text' },
+    { name: 'body', title: 'Body', type: 'array', of: [{ type: 'block' }] },
     { name: 'backgroundImage', title: 'Background Image', type: 'image' },
   ],
 })

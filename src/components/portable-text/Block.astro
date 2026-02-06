@@ -1,0 +1,23 @@
+---
+import type { BlockProps } from "astro-portabletext/lib/types"
+
+type Props = BlockProps
+
+const { node, index, isInline, ...attrs } = Astro.props
+const style = node.style || 'normal'
+
+const styleMap: Record<string, { tag: string; class: string }> = {
+  h1: { tag: 'h1', class: 'text-4xl font-bold leading-[1.2] mb-4 text-foreground' },
+  h2: { tag: 'h2', class: 'text-3xl font-semibold leading-[1.2] mb-3 text-foreground' },
+  h3: { tag: 'h3', class: 'text-xl font-semibold leading-[1.2] mb-2 text-foreground' },
+  h4: { tag: 'h4', class: 'text-lg font-semibold leading-[1.2] mb-2 text-foreground' },
+  h5: { tag: 'h5', class: 'text-base font-semibold leading-[1.2] mb-2 text-foreground' },
+  h6: { tag: 'h6', class: 'text-sm font-semibold leading-[1.2] mb-2 text-foreground' },
+  blockquote: { tag: 'blockquote', class: 'border-l-4 border-border pl-4 italic text-muted-foreground mb-4' },
+  normal: { tag: 'p', class: 'text-base leading-[1.4] mb-4 text-foreground' },
+}
+
+const { tag: Tag, class: className } = styleMap[style] || styleMap.normal
+---
+
+<Tag class={className} {...attrs}><slot /></Tag>

@@ -10,7 +10,7 @@ interface Props {
 const { heading, limit = 3 } = Astro.props
 
 const items = await sanityClient.fetch(
-  `*[_type == "pressItem"] | order(_createdAt desc) [0..$limit] {
+  `*[_type == "pressItem"] | order(publishedAt desc) [0..$limit] {
     headline, url, summary,
     publicationLogo{ asset->{ url } }
   }`,
