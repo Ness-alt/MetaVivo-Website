@@ -6,6 +6,84 @@ Astro + Sanity skeleton is built and deployed. Schemas are live on Sanity projec
 
 **Next step:** Seed placeholder content via Sanity API or Studio. Start with `siteSettings`, then singleton pages, then press collections.
 
+## System Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     SANITY STUDIO                            │
+│                    localhost:3333                            │
+│  ┌────────────┬──────────┬─────────────┬─────────────┐      │
+│  │ Structure  │  Media   │   Vision    │Presentation │      │
+│  │   (nav)    │ (assets) │  (GROQ)     │  (deferred) │      │
+│  └────────────┴──────────┴─────────────┴─────────────┘      │
+│         │              │           │                         │
+│         └──────────────┴───────────┘                         │
+│                        │                                     │
+│                        ▼                                     │
+│              ┌──────────────────┐                            │
+│              │   Sanity API     │                            │
+│              │  z8iaqdht.api    │                            │
+│              │   /production    │                            │
+│              └──────────────────┘                            │
+│                        │                                     │
+└────────────────────────┼─────────────────────────────────────┘
+                         │
+                         │ GROQ queries / mutations
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────────┐
+│                  ASTRO FRONTEND                              │
+│                 localhost:4321                               │
+│  ┌──────────────────────────────────────────────────┐       │
+│  │  src/lib/sanity.ts (client)                      │       │
+│  │  ├─ Read-only queries                            │       │
+│  │  └─ Image URL builder                            │       │
+│  └──────────────────────────────────────────────────┘       │
+│           │                                                  │
+│           ▼                                                  │
+│  ┌──────────────────────────────────────────────────┐       │
+│  │  Layout.astro                                    │       │
+│  │  ├─ Navbar2 (from siteSettings)                 │       │
+│  │  └─ Footer3 (from siteSettings)                 │       │
+│  └──────────────────────────────────────────────────┘       │
+│           │                                                  │
+│           ▼                                                  │
+│  ┌──────────────────────────────────────────────────┐       │
+│  │  Page Components                                 │       │
+│  │  ├─ [slug].astro (dynamic routes)               │       │
+│  │  └─ PageBuilder.astro (module router)           │       │
+│  └──────────────────────────────────────────────────┘       │
+│           │                                                  │
+│           ▼                                                  │
+│  ┌──────────────────────────────────────────────────┐       │
+│  │  Block Components                                │       │
+│  │  ├─ Hero.astro → Hero3                          │       │
+│  │  ├─ TextBlock.astro                             │       │
+│  │  ├─ TwoColumn.astro                             │       │
+│  │  ├─ CardGrid.astro                              │       │
+│  │  ├─ ContentWithImage.astro                      │       │
+│  │  ├─ PressFeed.astro (queries pressItem)        │       │
+│  │  ├─ PressReleaseFeed.astro (queries releases)  │       │
+│  │  └─ CtaBanner.astro → Cta3                      │       │
+│  └──────────────────────────────────────────────────┘       │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## Content Flow
+
+```
+Studio Edit → Draft Document → Publish → Public API → Astro Build → Static HTML
+```
+
+## Studio Plugins
+
+| Plugin | Status | Purpose | Notes |
+|--------|--------|---------|-------|
+| `structureTool` | ✓ Active | Custom sidebar navigation | See `studio/structure/index.ts` |
+| `media` | ✓ Active | Enhanced asset management | Grid view, search, tagging |
+| `visionTool` | ✓ Active | GROQ query testing | Dev tool |
+| `presentationTool` | ⏸ Deferred | Visual editing | **TODO:** Requires `@sanity/visual-editing` integration in Astro, draft mode API routes, and preview overlay. Set up when content exists. |
+
 ## Sanity Field Conventions
 
 These don't match the Starwind prop names — the mappings exist in Layout.astro and the block wrappers:
@@ -94,4 +172,5 @@ secondaryButton?: { text: string; href: string }
 | Module router | `src/components/PageBuilder.astro` |
 | Schema index | `studio/schemaTypes/index.ts` |
 | Studio structure | `studio/structure/index.ts` |
+| Presentation resolver | `studio/presentation/resolve.ts` (deferred use) |
 | Env vars | `.env.local` (gitignored) |
